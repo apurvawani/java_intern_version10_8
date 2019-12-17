@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class Education {//tested
 	//@Autowired
 	 public DB db = new DB();
-	public String entry(Map<String, Object> payload,String log) throws Exception{
+	public Map<String,String> entry(Map<String, Object> payload,String log) throws Exception{
+		 Map<String,String>map = new HashMap<String,String>();
+		
 		String diploma = (String) payload.get("diploma");
 		String class_diploma = (String) payload.get("class_diploma");
 		String diplomamonthyr = (String) payload.get("diplomamonthyr");
@@ -89,9 +91,9 @@ String sql = "INSERT INTO public.eduqualification(\r\n" +
 		//o.entry(payload,log);
 		
 		//Map<String, String> map = new HashMap<String, String>();
-		//map.put("value", "DONE");
+		map.put("Status", "Successfull");
+		return map;
 
-		return "Done";
 		
 		
 	}

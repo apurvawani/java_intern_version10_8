@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class Personal {
 	@Autowired
 	DB db = new DB();
-	public String entry(Map<String, Object> payload) throws Exception{
+	public Map<String,String> entry(Map<String, Object> payload) throws Exception{
+		Map<String,String>map = new HashMap<String,String>();
 		String empid = (String) payload.get("empid");
 
 		String salutation = (String) payload.get("salutation");
@@ -60,7 +61,8 @@ public class Personal {
 			ResultSet rs = st.executeQuery(sqlcheck);
 			while(rs.next()) {
 			if(empid.equals(rs.getString("Employee_ID"))) {
-				return "Employee already created";    
+				map.put("Status","Employee already registered");
+				return map;    
 		}
 			}
 		}
@@ -106,8 +108,8 @@ public class Personal {
 //		
 		//Map<String, String> map = new HashMap<String, String>();
 		//map.put("value", "DONE");
-
-		return "Done";
+		map.put("Status","Employee successfully registered");
+		return map; 
 		
 		
 	}

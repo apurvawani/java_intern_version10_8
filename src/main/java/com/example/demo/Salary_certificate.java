@@ -9,8 +9,10 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,12 +89,13 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 }
 
 public Map<String, String> check_req(@RequestBody Map<String, Object> payload) throws Exception{
+	String emp = (String)payload.get("Employee_ID");
+	String salaryid;
 	
-//	String emp_id = (String)payload.get("empid");
-	String empid = "Emp01";
-	String emp;
-	String empname;
+	salaryid = (String)payload.get("salaryid");
 	
+	System.out.println(emp);
+
 	Date fromdate;
 	Date todate;
 	
@@ -100,14 +103,12 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 	Map<String, String> map = new HashMap<String, String>();
 
 		
-	String sql="SELECT * FROM public.salary where \"Employee_ID\" = '"+empid+"';";
+	String sql="SELECT * FROM public.salary where salary_id= '"+salaryid+"';";
 	Statement stmt = db.connect().createStatement();
 	ResultSet rs=stmt.executeQuery(sql);
 	int i=1;
-	while(i==1&&rs.next()){ 
-		i=2;
+	while(rs.next()){ 
 		try {
-			 emp=rs.getString("Employee_ID");
 			 
 			 fromdate=rs.getDate("from_date");
 			
@@ -124,6 +125,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 				boolean field3=rs.getBoolean("fin"); //FINAL APPROVAL
 				boolean field4=rs.getBoolean("request"); //handled?
 				boolean field5= rs.getBoolean("admin_approval");//if admin printed the report
+				System.out.println(field1+" "+field2+" "+field3+" "+field4+" "+field5);
 				
 				if(field3==false) 
 				{
@@ -132,10 +134,10 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					String ADMIN = Boolean.toString(field5);
 					String TYPE = "Salary Certificate";
 
-					map.put("PRINCIPAL",PRINCIPAL);
-					map.put("PRINCIPAL",HOD);
-					map.put("PRINCIPAL",ADMIN);
-					map.put("PRINCIPAL",TYPE);
+					map.put("Principal",PRINCIPAL);
+					map.put("HOD",HOD);
+					map.put("Admin",ADMIN);
+					map.put("Type",TYPE);
 					return map;
 
 					
@@ -144,11 +146,13 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 				else if( field1==true && field2==true && field3==true && field4==false )
 				{
 					
-					String sql4="SELECT \"ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
-							"	FROM public.\"Personal\" where \"Employee_ID\"="+emp+";";
+					String sql4="SELECT \"Employee_ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
+							"	FROM public.\"Personal\" where \"Employee_ID\"='"+emp+"';";
 					Statement stmt1 = db.connect().createStatement();
 					ResultSet rs4=stmt1.executeQuery(sql4);
-					empname=rs4.getString(3)+rs4.getString(5);
+					rs4.next();
+					String empname=rs4.getString(3)+rs4.getString(5);
+					System.out.println("1st done");
 					
 					
 					
@@ -156,6 +160,9 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					
 					Statement stmt2 = db.connect().createStatement();
 					ResultSet rs2=stmt2.executeQuery(sql2);
+					rs2.next();
+					System.out.println("2st done");
+
 					
 					
 					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
@@ -165,11 +172,13 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					
 					
 					
-					int pay=rs2.getInt(15);
+					int pay=rs2.getInt(3);
+					System.out.println("3rd done");
+
 					String designation=rs2.getString(2);
 					String dep=(String)rs2.getString(3);
 					
-					int paygrade=rs2.getInt(16);
+					int paygrade=rs2.getInt(4);
 					int hra_m1=(int) ((pay+paygrade)*0.2);
 					int hra_m2=(int) ((pay+paygrade)*0.21);
 					int hra_m3=(int) ((pay+paygrade)*0.22);
@@ -243,60 +252,86 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					map.put("pay2",String.valueOf(pay));
 					map.put("pay3",String.valueOf(pay));
 					
-					map.put("hra_m1",String.valueOf(hra_m1));
-					map.put("hra_m2",String.valueOf(hra_m2));
-					map.put("hra_m3",String.valueOf(hra_m3));
+					map.put("hra1",String.valueOf(hra_m1));
+					map.put("hra2",String.valueOf(hra_m2));
+					map.put("hra3",String.valueOf(hra_m3));
 					
-					map.put("da_m1",String.valueOf(da_m1));
-					map.put("da_m2",String.valueOf(da_m2));
-					map.put("da_m3",String.valueOf(da_m3));
+					map.put("da1",String.valueOf(da_m1));
+					map.put("da2",String.valueOf(da_m2));
+					map.put("da3",String.valueOf(da_m3));
 					
-					map.put("dp_m1",String.valueOf(dp_m1));
-					map.put("dp_m2",String.valueOf(dp_m2));
-					map.put("dp_m3",String.valueOf(dp_m3));
+					map.put("dp1",String.valueOf(dp_m1));
+					map.put("dp2",String.valueOf(dp_m2));
+					map.put("dp3",String.valueOf(dp_m3));
 					
-					map.put("cca_m1",String.valueOf(cca_m1));
-					map.put("cca_m2",String.valueOf(cca_m2));
-					map.put("cca_m3",String.valueOf(cca_m3));
+					map.put("cca1",String.valueOf(cca_m1));
+					map.put("cca2",String.valueOf(cca_m2));
+					map.put("cca3",String.valueOf(cca_m3));
 
 					
-					map.put("ta_m1",String.valueOf(ta_m1));
-					map.put("ta_m2",String.valueOf(ta_m2));
-					map.put("ta_m3",String.valueOf(ta_m3));
+					map.put("ta1",String.valueOf(ta_m1));
+					map.put("ta2",String.valueOf(ta_m2));
+					map.put("ta3",String.valueOf(ta_m3));
 					
-					map.put("pf_m1",String.valueOf(pf_m1));
-					map.put("pf_m2",String.valueOf(pf_m2));
-					map.put("pf_m3",String.valueOf(pf_m3));
+					map.put("pf1",String.valueOf(pf_m1));
+					map.put("pf2",String.valueOf(pf_m2));
+					map.put("pf3",String.valueOf(pf_m3));
 					
-					map.put("pt_m1",String.valueOf(pt_m1));
-					map.put("pt_m2",String.valueOf(pt_m2));
-					map.put("pt_m3",String.valueOf(pt_m3));
+					map.put("pt1",String.valueOf(pt_m1));
+					map.put("pt2",String.valueOf(pt_m2));
+					map.put("pt3",String.valueOf(pt_m3));
 					
-					map.put("it_m1",String.valueOf(it_m1));
-					map.put("it_m2",String.valueOf(it_m2));
-					map.put("it_m3",String.valueOf(it_m3));
+					map.put("it1",String.valueOf(it_m1));
+					map.put("it2",String.valueOf(it_m2));
+					map.put("it3",String.valueOf(it_m3));
 					
-					map.put("revenue_m1",String.valueOf(revenue_m1));
-					map.put("revenue_m2",String.valueOf(revenue_m2));
-					map.put("revenue_m3",String.valueOf(revenue_m3));
+					map.put("r1",String.valueOf(revenue_m1));
+					map.put("r2",String.valueOf(revenue_m2));
+					map.put("r3",String.valueOf(revenue_m3));
 					
-					map.put("other_m1",String.valueOf(other_m1));
-					map.put("other_m2",String.valueOf(other_m2));
-					map.put("other_m3",String.valueOf(other_m3));
+					map.put("o1",String.valueOf(other_m1));
+					map.put("o2",String.valueOf(other_m2));
+					map.put("o3",String.valueOf(other_m3));
 					
-					map.put("total_m1",String.valueOf(total_m1));
-					map.put("total_m2",String.valueOf(total_m2));
-					map.put("total_m3",String.valueOf(total_m3));
+					map.put("t1",String.valueOf(total_m1));
+					map.put("t2",String.valueOf(total_m2));
+					map.put("t3",String.valueOf(total_m3));
 					
-					map.put("gross1",String.valueOf(gross1));
-					map.put("gross2",String.valueOf(gross2));
-					map.put("gross3",String.valueOf(gross3));
+					map.put("g1",String.valueOf(gross1));
+					map.put("g2",String.valueOf(gross2));
+					map.put("g3",String.valueOf(gross3));
 					
-					map.put("net1",String.valueOf(net1));
-					map.put("net2",String.valueOf(net2));
-					map.put("net3",String.valueOf(net3));
+					map.put("n1",String.valueOf(net1));
+					map.put("n2",String.valueOf(net2));
+					map.put("n3",String.valueOf(net3));
 					
-					map.put(empname, "name");
+					
+					 
+					map.put("m1",String.valueOf(fromdate));
+					
+					Calendar cal = Calendar.getInstance();
+					 cal.setTime(fromdate); 
+						cal.add(Calendar.DAY_OF_MONTH,30);  					 
+						System.out.println(cal.getTime());
+						SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+
+						String newDate = sdf1.format(cal.getTime()); 
+						
+						 cal.setTime(fromdate); 
+						cal.add(Calendar.DAY_OF_MONTH,61);  					 
+						System.out.println(cal.getTime());
+						String to_date = sdf1.format(cal.getTime()); 
+
+//					 System.out.println(fromdate.format(cal.getTime())); 
+					map.put("m2",String.valueOf(newDate));
+					map.put("m3",String.valueOf(to_date));
+					
+					map.put("x1",String.valueOf(fromdate));
+					map.put("x2",String.valueOf(newDate));
+					map.put("x3",String.valueOf(to_date));
+					
+					
+//					map.put(empname, "name");
 				
 					return map;	
 				}
@@ -319,89 +354,154 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 
 //HOD
 
-public Map<String, String> live_reqhod() throws SQLException {//tested
+public List live_reqhod() throws SQLException {//tested
 	
 	
-   	String false1="false";
-	String sql1="SELECT * FROM public.salary where request= false ;";
-	Map<String, String> emp_list = new HashMap<String, String>();
+ 	//String false1="false";
+	String sql1="SELECT * FROM public.salary where request= false and hod = false;";
+	
 	
 	Statement st = db.connect().createStatement();
 	ResultSet rs = st.executeQuery(sql1);
-	rs.next();
 	
-	System.out.println("Here1");
-	String empid=rs.getString("Employee_ID");
-	System.out.println(empid);
-
-	String sql2="SELECT \"First_Name\", \"Last_Name\"\r\n" + 
-			"	FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
-	Statement st2 = db.connect().createStatement();
-	ResultSet rs1 = st2.executeQuery(sql2);
-	rs1.next();
-
-	System.out.println("Here2");
-	String random=rs1.getString("First_Name");
-	System.out.println(random);
-
-System.out.println(rs.getBoolean("fin"));
+	String empid = null;
+	String sql2=null;
+	Statement st2 = null;
+	ResultSet rs1 = null;
+	String random=null;
+	
+	
+	String sql3=null;
+	Statement st3 = null;
+	ResultSet rs3 = null;
+	
+	
 
 
+List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 	
 	int j=0;
-	String i;
-	do{
-		j++;
-		i=String.valueOf(j);
+	while(rs.next()){
+		
+		
+		 empid=rs.getString("Employee_ID");
+		 System.out.println(empid);
+
+		 sql2="SELECT \"First_Name\", \"Last_Name\"\r\n" + 
+				"	FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
+		 st2 = db.connect().createStatement();
+		 rs1 = st2.executeQuery(sql2);
+		 rs1.next();
+		
+		
+		
+		sql3="SELECT designation FROM public.officeinfo where \"Employee_ID\"='"+empid+"';";
+		st3 = db.connect().createStatement();
+	    rs3 = st3.executeQuery(sql3);
+		rs3.next();
+		
+		
+
+		random=rs1.getString("First_Name");
+		System.out.println(random);
+		Map<String, String> emp_list = new HashMap<String, String>();
 		
 		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==false ) {
 			
 			
-			System.out.println("Here3");
-			emp_list.put("First_name"+i, rs1.getString("First_Name"));
-			emp_list.put("Last_name"+i, rs1.getString("Last_Name"));
-			emp_list.put("Employee_ID"+i, empid);
-				
+			emp_list.put("name", rs1.getString("First_Name")+" "+rs1.getString("Last_Name"));
+		
+			emp_list.put("EMPID", empid);
+			emp_list.put("designation", rs3.getString("designation"));
+			emp_list.put("Type", "Salary Certificate");
+			emp_list.put("Certificate_id",rs.getString("salary_id"));
+			emp_list.put("duration",rs.getString("from_date")+" - "+rs.getString("to_date"));
+
+			
+			
+			System.out.println(rs3.getString("designation"));
+			
+			mymap.add(j,emp_list);
+			j++;	
 	}
 	
-	}while(rs.next());
-	System.out.println("4");
-	return emp_list;	
+	}
+	return mymap;	
 	}  
 
 //PRINCIPAL
-	public Map<String, String> live_requestp() throws SQLException {
+public List live_requestp() throws SQLException {//tested
+	
+	
+ 	//String false1="false";
+	String sql1="SELECT * FROM public.salary where request=false and hod = true and fin = false ;";
+	
+	
+	Statement st = db.connect().createStatement();
+	ResultSet rs = st.executeQuery(sql1);
+	
+	String empid = null;
+	String sql2=null;
+	Statement st2 = null;
+	ResultSet rs1 = null;
+	String random=null;
+	
+	
+	String sql3=null;
+	Statement st3 = null;
+	ResultSet rs3 = null;
+	
+	
+
+
+List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+	
+	int j=0;
+	while(rs.next()){
 		
-		//String empid=(String)payload.get("employee_id");
-	   		
-		String sql1="SELECT * FROM public.salary where request = false;";
+		
+		 empid=rs.getString("Employee_ID");
+		 System.out.println(empid);
+
+		 sql2="SELECT \"First_Name\", \"Last_Name\"\r\n" + 
+				"	FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
+		 st2 = db.connect().createStatement();
+		 rs1 = st2.executeQuery(sql2);
+		 rs1.next();
+		
+		
+		
+		sql3="SELECT designation FROM public.officeinfo where \"Employee_ID\"='"+empid+"';";
+		st3 = db.connect().createStatement();
+	    rs3 = st3.executeQuery(sql3);
+		rs3.next();
+		
+		
+
+		random=rs1.getString("First_Name");
+		System.out.println(random);
 		Map<String, String> emp_list = new HashMap<String, String>();
 		
-		Statement st = db.connect().createStatement();
-		ResultSet rs = st.executeQuery(sql1);
-		int j=0;
-		String i;
-		while (rs.next()){
-			j++;
-			i=String.valueOf(j);
-			String empid=rs.getString("Employee_ID");
-			if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==true && rs.getBoolean("principal")==false) {
-				
-				String sql2="SELECT \"First_Name\", \"Last_Name\" FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
-				ResultSet rs1 = st.executeQuery(sql2);
-				rs1.next();
-				emp_list.put("First_name"+i, rs1.getString("First_Name"));
-				emp_list.put("Last_name"+i, rs1.getString("Last_Name"));
-				emp_list.put("Employee_ID"+i, empid);
-						
-		}
+		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false &&rs.getBoolean("hod")==true) {
 			
-		
-		}  
-		return emp_list;
+			
+			emp_list.put("name", rs1.getString("First_Name")+" "+rs1.getString("Last_Name"));
+			
+			emp_list.put("EMPID", empid);
+			emp_list.put("designation", rs3.getString("designation"));
+			emp_list.put("Type", "Salary Certificate");
+			emp_list.put("Certificate_id",rs.getString("salary_id"));
+			emp_list.put("duration",rs.getString("from_date")+" - "+rs.getString("to_date"));
 
+			System.out.println(rs3.getString("designation"));
+			
+			mymap.add(j,emp_list);
+			j++;	
 	}
 	
+	}
+	return mymap;	
+	}  
 	
 	
 	

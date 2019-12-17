@@ -12,7 +12,7 @@ public class DB {
 
 	 private final String url = "jdbc:postgresql://localhost:5432/employee";
 	    private final String user = "postgres";
-	    private final String password = "7767";
+	    private final String password = "mishr";
 	    public  Connection conn;
 	    /**
 	     * Connect to the PostgreSQL database

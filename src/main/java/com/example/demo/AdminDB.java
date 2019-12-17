@@ -12,7 +12,7 @@ package com.example.demo;
 
 		 private final String url = "jdbc:postgresql://localhost:5432/Amin";
 		    private final String user = "postgres";
-		    private final String password = "7767";
+		    private final String password = "mishr";
 		    public  Connection conn;
 		    /**
 		     * Connect to the PostgreSQL database

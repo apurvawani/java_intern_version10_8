@@ -4,8 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.lang.Math; 
 
 
@@ -16,16 +18,15 @@ public class facultyreport {
 
 	AdminDB db = new AdminDB();
 	
-	public Map<String,Integer> facultyinfo(@RequestBody Map<String, Object> payload,AdminDB adb) throws SQLException {
+	public List facultyinfo(@RequestBody Map<String, Object> payload,AdminDB adb) throws SQLException {
 		Map<String, Integer> faculty = new HashMap<String, Integer>();
 		String Department = (String) payload.get("department");
-		boolean Shift = (boolean) payload.get("shift");
-	    System.out.println(Department);
-	    System.out.println(Shift);
+		String Shift = (String) payload.get("shift");
+		java.util.List<Map<String,Integer>> mymap = new ArrayList<Map<String, Integer>>();
 
 
 		ResultSet rs = null;
-		String sql="SELECT * FROM public.pginfo;";
+		String sql="SELECT * FROM public.students";
 	    System.out.println("Query execution");
 
 		
@@ -40,7 +41,7 @@ public class facultyreport {
 		{
 		    System.out.println("inside while");
 
-			if((rs.getString(1).equals(Department))&& (Shift==rs.getBoolean(2)))
+			if((rs.getString(1).equals(Department))&& (rs.getString(2).equals(Shift)))
 			{		   
 
 		    System.out.print("Column 1 returned ");
@@ -59,15 +60,16 @@ public class facultyreport {
 
 		    asst = fac-prof-asso;
 		    System.out.println(asst);
-
-		    faculty.put("Proffesor",prof);
-		    faculty.put("Assosiate_Professor",asso);
-		    faculty.put("Assistant",asst);
+		    
+		    faculty.put("Professor",prof);
+		    faculty.put("Associate_Professor",asso);
+		    faculty.put("Assistant Professor",asst);
 		    break;
 		    }
 		}
 		rs.close();
+		mymap.add(0,faculty);
 		
-		return faculty;
+		return mymap;
 	}
 }
